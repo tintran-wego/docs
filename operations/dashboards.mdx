@@ -1,0 +1,143 @@
+---
+title: Dashboards
+description: Key dashboards for monitoring Flight Shopping
+---
+
+# Dashboards
+
+This page documents the key Datadog dashboards for monitoring Flight Shopping systems.
+
+## Primary Dashboards
+
+### Google Flights (GFS) Dashboard
+
+<Card title="GFS Dashboard" icon="chart-mixed" href="https://app.datadoghq.com/dashboard/mdz-52s-9w3/google-flights-gfs">
+  Main dashboard for Google Flights integration monitoring
+</Card>
+
+**URL**: `https://app.datadoghq.com/dashboard/mdz-52s-9w3/google-flights-gfs`
+
+**What to monitor**:
+
+| Panel | What to Look For | Healthy | Alert Threshold |
+|-------|------------------|---------|-----------------|
+| **Search TPS** | Requests per second | 50-500 TPS | <10 or >1000 |
+| **Latency p50** | Median response time | <200ms | >500ms |
+| **Latency p99** | 99th percentile | <500ms | >2s |
+| **Error Rate** | 4xx/5xx responses | <1% | >5% |
+| **Cache Hit Rate** | Responses from cache | >80% | <60% |
+
+**Key time ranges**:
+- **2 weeks**: Trend analysis
+- **1 week**: Week-over-week comparison
+- **3 days**: Recent behavior
+
+<Accordion title="Interpreting the Dashboard">
+**TPS Drops** - Could indicate:
+- Partner (Google) reduced traffic
+- System issue preventing requests from arriving
+- Rate limiting triggered
+
+**Latency Spikes** - Could indicate:
+- Cache misses forcing live searches
+- Provider slowdowns
+- Redis/database issues
+- CPU/memory pressure
+
+**Error Rate Increase** - Could indicate:
+- Provider failures
+- Invalid requests
+- System bugs
+- Cache failures
+
+**Cache Hit Rate Drops** - Could indicate:
+- External fare cache not refreshing
+- TTL settings too aggressive
+- New routes without cached data
+</Accordion>
+
+---
+
+### Curiosity Dashboard
+
+**URL**: Check Datadog → Dashboards → "Curiosity" or "Flight Search"
+
+**Key metrics**:
+
+| Metric | Description |
+|--------|-------------|
+| `curiosity.search.count` | Total searches initiated |
+| `curiosity.search.latency` | Search completion time |
+| `curiosity.search.success_rate` | % successful searches |
+| `curiosity.polling.count` | Frontend poll requests |
+
+---
+
+### Provider Health Dashboard
+
+**URL**: Check Datadog → Dashboards → "Provider Health" or "Integrations"
+
+**Key metrics per provider**:
+
+| Metric | Healthy | Warning | Critical |
+|--------|---------|---------|----------|
+| Success Rate | >95% | 80-95% | <80% |
+| Latency p50 | <2s | 2-5s | >5s |
+| Timeout Rate | <1% | 1-5% | >5% |
+
+---
+
+## Dashboard Best Practices
+
+### Daily Check Routine
+
+<Steps>
+  <Step title="Check GFS Dashboard">
+    Open at start of day. Look for overnight anomalies.
+    
+    Time range: Last 24 hours
+  </Step>
+  
+  <Step title="Compare Week-over-Week">
+    Switch to 1 week view. Check if patterns match previous week.
+  </Step>
+  
+  <Step title="Note Anomalies">
+    Document anything unusual in `#flights-dev-internal`
+  </Step>
+  
+  <Step title="Check Provider Health">
+    Identify any degraded providers
+  </Step>
+</Steps>
+
+### Creating New Dashboards
+
+When creating dashboards:
+
+1. **Use consistent naming**: `Team - Service - Purpose`
+2. **Add descriptions**: Explain what each panel shows
+3. **Set alert thresholds**: Visual thresholds help spot issues
+4. **Group logically**: Related metrics together
+5. **Add links**: To runbooks and other dashboards
+
+---
+
+## Quick Links
+
+| Dashboard | Purpose |
+|-----------|---------|
+| [GFS Dashboard](https://app.datadoghq.com/dashboard/mdz-52s-9w3/google-flights-gfs) | Google Flights monitoring |
+| [APM - Curiosity](https://app.datadoghq.com/apm/services/curiosity) | Trace analysis |
+| [Logs - Flights](https://app.datadoghq.com/logs) | Log search |
+| [Infrastructure](https://app.datadoghq.com/infrastructure) | Host monitoring |
+
+## Accessing Datadog
+
+- **URL**: https://app.datadoghq.com
+- **Login**: Google SSO with @wego.com account
+- **Permissions**: Team members have read access by default
+
+<Info>
+Request dashboard edit permissions from your lead if you need to create or modify dashboards.
+</Info>

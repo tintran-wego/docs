@@ -1,0 +1,106 @@
+---
+title: Team Structure
+description: Flight Shopping team organization and responsibilities
+---
+
+# Team Structure
+
+## Team Overview
+
+The Flight Shopping team is responsible for Wego's flight metasearch functionality. We're a cross-functional team handling everything from provider integrations to search infrastructure.
+
+<Note>
+**Team Lead:** Tin
+
+Tin oversees the team's technical direction, prioritization, and delivery. For escalations or strategic discussions, reach out to him directly.
+</Note>
+
+## Areas of Responsibility
+
+### Core Systems
+
+| Area | Description | Key Repos |
+|------|-------------|-----------|
+| **Search Infrastructure** | Curiosity and search orchestration | `curiosity` |
+| **Provider Integrations** | Connecting to airlines and OTAs | `flight-integrations` |
+| **Offer Engine** | Fare processing and caching | `flight-offer-engine` |
+| **GFS** | Google Flights partnership | Modules in `curiosity` |
+| **External Fare Cache** | Partner data ingestion | `flight-external-fare-cache` |
+
+### Supporting Systems
+
+| Area | Description | Key Repos |
+|------|-------------|-----------|
+| **Data Pipeline** | ETL for analytics | `hyperloop` |
+| **Static Data** | Airlines, airports, routes | `flight-services` |
+| **Offer Aggregator** | Result aggregation | `flight-offer-aggregator` |
+
+## Communication Channels
+
+| Channel | Purpose |
+|---------|---------|
+| `#flights-dev-internal` | Daily dev discussions, questions, alerts |
+| `#flights-standup` | Async standups and updates |
+| `#tech-oncall` | Production issues and escalations |
+
+## On-Call Rotation
+
+The team maintains an on-call rotation for production issues:
+
+- **Primary**: Handles immediate alerts and investigation
+- **Secondary**: Backup and support for complex issues
+- **Escalation**: Team lead for critical decisions
+
+<Info>
+On-call schedule is managed in PagerDuty. Check the current rotation before escalating non-urgent issues.
+</Info>
+
+## Working Hours
+
+Team members are distributed across time zones. Core overlap hours:
+
+- **Synchronous window**: 10:00 - 14:00 SGT (Singapore Time)
+- **Async communication**: Encouraged outside core hours
+
+## Stakeholders
+
+### Internal
+
+| Team | Interaction |
+|------|-------------|
+| **Frontend/Web** | API consumers for search UI |
+| **Mobile** | API consumers for mobile apps |
+| **Data/Analytics** | Data pipeline coordination |
+| **Platform/Infra** | Infrastructure and deployment |
+| **Product** | Feature requirements and prioritization |
+
+### External
+
+| Partner | Interaction |
+|---------|-------------|
+| **Google Flights** | GFS integration, SLA compliance |
+| **Providers** | API integrations, issue resolution |
+| **Atlas** | External fare cache partnership |
+
+## Decision Making
+
+### Technical Decisions
+
+- **Small changes**: Individual discretion with PR review
+- **Medium changes**: Discuss in team channel, get consensus
+- **Large changes**: RFC document, team review meeting
+- **Architecture changes**: Tin approval + senior team review
+
+### Prioritization
+
+1. **Production issues** - Always top priority
+2. **GFS/Partner commitments** - SLA-driven
+3. **Sprint commitments** - Planned work
+4. **Tech debt** - Allocated capacity each sprint
+
+## Knowledge Sharing
+
+- **Weekly tech sync**: Share learnings, discuss challenges
+- **PR reviews**: Learn from each other's code
+- **Documentation**: Update this knowledge base
+- **Confluence**: Detailed design docs and RFCs

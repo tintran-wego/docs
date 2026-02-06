@@ -1,0 +1,245 @@
+---
+title: Repositories
+description: GitHub repositories owned by Flight Shopping
+---
+
+# Repositories
+
+This page lists all repositories owned and maintained by the Flight Shopping team.
+
+## Core Repositories
+
+### curiosity
+
+**Main search orchestrator**
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/curiosity](https://github.com/wego/curiosity) |
+| **Language** | Java |
+| **Framework** | Dropwizard |
+| **Deploy** | Jenkins → ECS |
+
+<Accordion title="Key Information">
+**Purpose**: Entry point for all flight searches. Orchestrates provider queries, aggregates results, and serves to frontend/partners.
+
+**Main modules**:
+- `curiosity-core`: Shared models and utilities
+- `curiosity-providers`: Main application
+
+**Quick start**:
+```bash
+git clone git@github.com:wego/curiosity.git
+cd curiosity
+asdf install
+docker-compose up -d live-redis static-redis elasticmq
+./gradlew clean build -x test
+```
+
+**Key contacts**: Entire Flight Shopping team
+</Accordion>
+
+---
+
+### flight-integrations
+
+**Provider integration layer**
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/flight-integrations](https://github.com/wego/flight-integrations) |
+| **Language** | Java |
+| **Framework** | Dropwizard |
+| **Deploy** | Jenkins → ECS |
+
+<Accordion title="Key Information">
+**Purpose**: Contains 400+ provider integrations. Each provider has its own module with client, transformer, and parser.
+
+**Structure**:
+```
+flights/
+├── emirates.com/
+├── sabre.com/
+├── amadeus.com/
+└── ... (400+ providers)
+```
+
+**Adding a provider**:
+1. Update `local.properties` to include new provider
+2. Create module in `flights/` directory
+3. Implement client extending base classes
+4. Configure in Static Redis
+
+**Key contacts**: Entire Flight Shopping team
+</Accordion>
+
+---
+
+### flight-offer-engine
+
+**Offer processing and caching**
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/flight-offer-engine](https://github.com/wego/flight-offer-engine) |
+| **Language** | Java |
+| **Framework** | Spring Boot |
+| **Runtime** | GraalVM |
+| **Deploy** | Jenkins → ECS |
+
+<Accordion title="Key Information">
+**Purpose**: Processes and caches flight offers. Serves cached data to search and GFS.
+
+**Tech stack**:
+- Spring Boot 3.x
+- GraalVM 21
+- ScyllaDB
+- LocalStack (local dev)
+
+**Quick start**:
+```bash
+git clone git@github.com:wego/flight-offer-engine.git
+cd flight-offer-engine
+./run_infra_local.sh  # Starts ScyllaDB, LocalStack
+./gradlew clean build
+docker-compose -f docker-compose.debug.yml up -d
+```
+</Accordion>
+
+---
+
+### flight-external-fare-cache
+
+**External data ingestion**
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/flight-external-fare-cache](https://github.com/wego/flight-external-fare-cache) |
+| **Language** | Java |
+| **Framework** | Spring Boot |
+| **Deploy** | Jenkins → ECS |
+
+<Accordion title="Key Information">
+**Purpose**: Fetches bulk fare data from partners like Atlas. Stores in ScyllaDB for GFS and instant results.
+
+**Trigger**: Airflow scheduled jobs
+
+**Key endpoints**:
+- `GET /heartbeat` - Health check
+- `POST /v1/atlas/fetch` - Trigger Atlas fetch
+</Accordion>
+
+---
+
+## Supporting Repositories
+
+### flight-offer-aggregator
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/flight-offer-aggregator](https://github.com/wego/flight-offer-aggregator) |
+| **Purpose** | Result aggregation and deduplication |
+| **Language** | Java |
+
+---
+
+### flight-services
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/flight-services](https://github.com/wego/flight-services) |
+| **Purpose** | Static data management (airlines, airports, routes) |
+| **Language** | Java |
+
+---
+
+### hyperloop
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/hyperloop](https://github.com/wego/hyperloop) |
+| **Purpose** | Data pipeline, ETL to BigQuery |
+| **Language** | Ruby |
+
+---
+
+## Infrastructure Repositories
+
+### baker
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/baker](https://github.com/wego/baker) |
+| **Purpose** | Infrastructure as code, deployment configs |
+
+---
+
+### potboiler
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/potboiler](https://github.com/wego/potboiler) |
+| **Purpose** | Blackhole tunnel management |
+
+---
+
+## Documentation
+
+### docs (this repo)
+
+| | |
+|---|---|
+| **URL** | [github.com/wego/docs](https://github.com/wego/docs) |
+| **Purpose** | Flight Shopping knowledge base |
+| **Platform** | Mintlify |
+
+---
+
+## Repository Standards
+
+### Branch Protection
+
+All core repos have:
+- `main` branch protection
+- Required PR reviews (1-2 approvals)
+- Required CI checks
+- No direct pushes
+
+### CI/CD
+
+Standard pipeline:
+1. **Build**: Compile, run checks
+2. **Test**: Unit tests, integration tests
+3. **Analyze**: SonarQube scan
+4. **Deploy Staging**: Automatic on merge
+5. **Deploy Production**: Manual trigger
+
+### Code Owners
+
+Each repo has `CODEOWNERS` file defining reviewers:
+
+```
+# CODEOWNERS
+* @wego/flight-shopping
+
+# Specific areas
+/flights/gfs/** @tin @senior-team
+```
+
+## Getting Access
+
+<Steps>
+  <Step title="GitHub Account">
+    Set up GitHub with SSH keys. See [Confluence guide](https://wegomushi.atlassian.net/wiki/spaces/~703874977/pages/3094937931/Onboard+Yourself+in+Wego+as+an+Engineer#%F0%9F%A7%91%E2%80%8D%F0%9F%92%BB-GitHub-Setup-(Including-SSH))
+  </Step>
+  
+  <Step title="Team Membership">
+    Request access to `@wego/flight-shopping` team from your lead
+  </Step>
+  
+  <Step title="Clone Repos">
+    ```bash
+    git clone git@github.com:wego/{repo}.git
+    ```
+  </Step>
+</Steps>

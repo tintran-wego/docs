@@ -1,0 +1,273 @@
+---
+title: Local Setup
+description: Complete local development environment setup
+---
+
+# Local Setup Guide
+
+This guide covers setting up the complete Flight Shopping development environment locally.
+
+## Overview
+
+To run the full stack locally, you need:
+
+1. **Curiosity** - Search orchestrator
+2. **Flight Integrations** - Provider workers
+3. **Redis** - Live and Static caches
+4. **ElasticMQ** - Message queue (SQS alternative)
+5. **ScyllaDB** - Optional, for fare cache features
+
+## Infrastructure Setup
+
+### Docker Compose
+
+Create or use existing `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  live-redis:
+    image: redis:7-alpine
+    ports:
+      - "7001:6379"
+    command: redis-server --appendonly yes
+
+  static-redis:
+    image: redis:7-alpine
+    ports:
+      - "6480:6379"
+    volumes:
+      - ./static-data:/data
+
+  provider-redis:
+    image: redis:7-alpine
+    ports:
+      - "6479:6379"
+
+  elasticmq:
+    image: softwaremill/elasticmq-native
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./elasticmq.conf:/opt/elasticmq.conf
+
+  scylla:
+    image: scylladb/scylla
+    ports:
+      - "9042:9042"
+    command: --smp 2 --memory 2G
+```
+
+### Start infrastructure
+
+```bash
+docker-compose up -d
+
+# Verify all running
+docker-compose ps
+```
+
+## Load Static Data
+
+Static data (airlines, airports, providers) needs to be loaded into Static Redis:
+
+```bash
+# Option 1: Copy from staging
+./scripts/sync-static-data.sh staging
+
+# Option 2: Load from fixtures
+redis-cli -p 6480 < fixtures/static-data.redis
+```
+
+## Run Services
+
+### Curiosity
+
+```bash
+cd ~/wego/curiosity
+
+# Build
+./gradlew clean build -x test
+
+# Run
+java -Dwego.environment=local \
+     -Djetty.home=providers \
+     -Dwego.applicationType=ALL \
+     -jar curiosity-providers/build/libs/curiosity-providers-*.jar \
+     server curiosity-providers/dropwizard-local.yml
+```
+
+### Flight Integrations
+
+```bash
+cd ~/wego/flight-integrations
+
+# Configure which providers to load
+echo "integrationType=flights
+includedIntegration=wego.com,sabre.com" > local.properties
+
+# Build
+./gradlew clean build -x test
+
+# Run
+java -Dwego.environment=local \
+     -jar build/libs/flight-integrations-*.jar \
+     server config/dropwizard-local.yml
+```
+
+## Configuration Files
+
+### Curiosity local config
+
+Create `dropwizard-local.yml`:
+
+```yaml
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
+liveRedis:
+  host: localhost
+  port: 7001
+
+staticRedis:
+  host: localhost
+  port: 6480
+
+messageQueue:
+  type: elasticmq
+  host: localhost
+  port: 9324
+```
+
+### Flight Integrations local config
+
+Create `dropwizard-local.yml`:
+
+```yaml
+server:
+  applicationConnectors:
+    - type: http
+      port: 8082
+
+providerRedis:
+  host: localhost
+  port: 6479
+
+messageQueue:
+  type: elasticmq
+  host: localhost
+  port: 9324
+```
+
+## Testing the Setup
+
+### End-to-end search test
+
+```bash
+# 1. Initiate search
+SEARCH_ID=$(curl -s -X POST http://localhost:8080/v3/metasearch/flights/searches \
+  -H "Content-Type: application/json" \
+  -d '{
+    "trips": [{"departureCode": "SIN", "arrivalCode": "BKK", "outboundDate": "2025-03-15"}],
+    "adults": 1,
+    "siteCode": "SG"
+  }' | jq -r '.id')
+
+echo "Search ID: $SEARCH_ID"
+
+# 2. Poll for results
+curl -s "http://localhost:8080/v3/metasearch/flights/searches/$SEARCH_ID" | jq '.status, .flights | length'
+```
+
+### Check message queue
+
+```bash
+# View queue stats
+curl http://localhost:9325/?Action=GetQueueAttributes&QueueUrl=flights-search
+```
+
+### Check Redis
+
+```bash
+# Live cache
+redis-cli -p 7001 keys "*"
+
+# Provider cache
+redis-cli -p 6479 keys "*"
+```
+
+## Debugging
+
+### Enable debug logging
+
+Add to run configuration:
+
+```
+-Dlogback.debug=true
+-Dlog.level.wego=DEBUG
+```
+
+### Remote debugging
+
+```
+-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+```
+
+Then attach IntelliJ debugger to port 5005.
+
+### Useful log queries
+
+```bash
+# Search for errors
+tail -f logs/curiosity.log | grep -i error
+
+# Follow specific search
+tail -f logs/curiosity.log | grep "searchId=abc123"
+```
+
+## Tips
+
+<AccordionGroup>
+  <Accordion title="Speed up builds">
+    ```bash
+    # Skip tests
+    ./gradlew build -x test
+    
+    # Use build cache
+    ./gradlew build --build-cache
+    
+    # Parallel builds
+    ./gradlew build --parallel
+    ```
+  </Accordion>
+  
+  <Accordion title="Reset local environment">
+    ```bash
+    # Stop all containers
+    docker-compose down -v
+    
+    # Remove data
+    rm -rf data/
+    
+    # Start fresh
+    docker-compose up -d
+    ```
+  </Accordion>
+  
+  <Accordion title="Mock provider responses">
+    For testing without real provider calls, use WireMock:
+    
+    ```bash
+    docker run -p 8089:8089 wiremock/wiremock
+    ```
+    
+    Configure provider URL to point to WireMock.
+  </Accordion>
+</AccordionGroup>
