@@ -11,58 +11,89 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Overview",
         "groups": [
           {
-            "group": "Onboarding",
+            "group": "Getting Started",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "product/overview",
+              "product/user-journeys"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Team",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "team/structure",
+              "team/processes"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Architecture",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "System Overview",
             "pages": [
-              "api-reference/introduction"
+              "architecture/overview",
+              "architecture/services"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Data Flows",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "architecture/search-flow",
+              "architecture/fare-caching",
+              "architecture/provider-integrations"
+            ]
+          },
+          {
+            "group": "Repositories",
+            "pages": [
+              "architecture/repositories"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Operations",
+        "groups": [
+          {
+            "group": "Monitoring",
+            "pages": [
+              "operations/dashboards",
+              "operations/metrics",
+              "operations/alerts"
+            ]
+          },
+          {
+            "group": "Runbooks",
+            "pages": [
+              "runbooks/overview",
+              "runbooks/search-issues",
+              "runbooks/provider-issues",
+              "runbooks/performance-issues"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Development",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "development/quickstart",
+              "development/local-setup"
+            ]
+          },
+          {
+            "group": "Guidelines",
+            "pages": [
+              "development/code-style",
+              "development/pr-review",
+              "development/deployment"
             ]
           }
         ]
@@ -71,14 +102,14 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "GitHub",
+          "href": "https://github.com/wego",
+          "icon": "github"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Datadog",
+          "href": "https://app.datadoghq.com",
+          "icon": "chart-line"
         }
       ]
     }
@@ -90,33 +121,24 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Confluence",
+        "href": "https://wegomushi.atlassian.net/wiki/spaces/ENG"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+    ]
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/wego"
     }
   }
 }

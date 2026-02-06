@@ -1,97 +1,91 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: Flight Shopping Knowledge Base
+description: Comprehensive documentation for the Wego Flight Shopping team
 ---
 
-## Setting up
+# Flight Shopping Knowledge Base
 
-Get your documentation site up and running in minutes.
+Welcome to the Flight Shopping team's knowledge base. This documentation covers everything you need to know about our systems, processes, and operations.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
+<CardGroup cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Product Overview"
+    icon="plane"
+    href="/product/overview"
   >
-    Edit your docs locally and preview them in real time.
+    Understand what Flight Shopping does and how it serves our users
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="Architecture"
+    icon="diagram-project"
+    href="/architecture/overview"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Deep dive into our systems, services, and data flows
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
+    title="Operations"
+    icon="chart-line"
+    href="/operations/dashboards"
   >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
-
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+    Dashboards, metrics, and monitoring for production systems
   </Card>
   <Card
-    title="Code samples"
+    title="Development"
     icon="code"
-    href="/essentials/code"
+    href="/development/quickstart"
   >
-    Add sample code to demonstrate how to use your product.
+    Get started with local development and contribution guidelines
+  </Card>
+</CardGroup>
+
+## Quick Links
+
+<CardGroup cols={3}>
+  <Card
+    title="GFS Dashboard"
+    icon="chart-mixed"
+    href="https://app.datadoghq.com/dashboard/mdz-52s-9w3/google-flights-gfs"
+  >
+    Google Flights performance dashboard
   </Card>
   <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
+    title="Runbooks"
+    icon="book"
+    href="/runbooks/overview"
   >
-    Display images and other media.
+    Troubleshooting guides for common issues
   </Card>
   <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
+    title="Confluence"
+    icon="file-lines"
+    href="https://wegomushi.atlassian.net/wiki/spaces/ENG/pages/3108110380/Flights+Architecture+Document+Links+as+of+2025+In+Progress"
   >
-    Write once and reuse across your docs.
+    Architecture documents on Confluence
   </Card>
-</Columns>
+</CardGroup>
 
-## Need inspiration?
+## Team
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+The Flight Shopping team is responsible for Wego's flight metasearch functionality. We build and maintain the systems that:
+
+- **Search & aggregate** flight fares from 400+ providers worldwide
+- **Power Google Flights** integration (GFS) - a key revenue driver
+- **Optimize user experience** with fast search results and accurate pricing
+- **Maintain fare caches** for instant pricing and availability
+
+**Team Lead:** Tin
+
+## Key Systems
+
+| System | Purpose | Tech Stack |
+|--------|---------|------------|
+| [Curiosity](/architecture/services#curiosity) | Main search orchestrator | Java, Dropwizard, Redis |
+| [Flight Integrations](/architecture/services#flight-integrations) | Provider API integrations | Java, Dropwizard |
+| [Flight Offer Engine](/architecture/services#flight-offer-engine) | Offer processing & caching | Spring Boot, ScyllaDB |
+| [GFS](/architecture/services#gfs) | Google Flights integration | Java, Dropwizard |
+
+---
+
+<Note>
+This knowledge base is designed for both human readers and AI assistants. If you're using an AI tool like Claude or Cursor, you can reference this documentation for context about our systems.
+</Note>
