@@ -1,0 +1,161 @@
+---
+title: Quick Start
+description: Get started with Flight Shopping development
+---
+
+# Quick Start Guide
+
+This guide helps you set up your local development environment for Flight Shopping services.
+
+## Prerequisites
+
+- **macOS** or **Linux** (Windows with WSL2)
+- **Git** with SSH access to GitHub
+- **Docker** and Docker Compose
+- **Java 21** (via SDKMAN or asdf)
+- **IDE**: IntelliJ IDEA recommended
+
+## Step 1: GitHub Access
+
+<Steps>
+  <Step title="SSH Keys">
+    Ensure SSH keys are set up for GitHub:
+    ```bash
+    ssh -T git@github.com
+    # Should see: "Hi username! You've successfully authenticated"
+    ```
+  </Step>
+  
+  <Step title="Team Access">
+    Request access to `@wego/flight-shopping` team from your lead.
+  </Step>
+</Steps>
+
+## Step 2: Clone Repositories
+
+```bash
+# Create workspace
+mkdir -p ~/wego && cd ~/wego
+
+# Clone core repos
+git clone git@github.com:wego/curiosity.git
+git clone git@github.com:wego/flight-integrations.git
+git clone git@github.com:wego/flight-offer-engine.git
+```
+
+## Step 3: Java Setup
+
+Using SDKMAN (recommended):
+
+```bash
+# Install SDKMAN
+curl -s "https://get.sdkman.io" | bash
+
+# Install Java 21
+sdk install java 21-tem
+
+# Verify
+java -version
+```
+
+Or using asdf:
+
+```bash
+# Install Java plugin
+asdf plugin add java
+
+# Install Java 21
+asdf install java temurin-21.0.1+12.0.LTS
+
+# Set global version
+asdf global java temurin-21.0.1+12.0.LTS
+```
+
+## Step 4: Run Curiosity Locally
+
+### Start dependencies
+
+```bash
+cd ~/wego/curiosity
+
+# Start Redis and ElasticMQ
+docker-compose up -d live-redis static-redis elasticmq
+```
+
+### Build and run
+
+```bash
+# Build (skip tests for speed)
+./gradlew clean build -x test
+
+# Run
+java -Dwego.environment=staging \
+     -Djetty.home=providers \
+     -Dwego.applicationType=ALL \
+     -jar curiosity-providers/build/libs/curiosity-providers-*.jar \
+     server curiosity-providers/dropwizard.yml
+```
+
+### Verify
+
+```bash
+# Health check
+curl http://localhost:8080/heartbeat
+
+# Test search (will fail without full setup, but confirms app running)
+curl http://localhost:8080/v3/metasearch/flights/searches
+```
+
+## Step 5: IDE Setup
+
+### IntelliJ IDEA
+
+1. **Import project**: File → Open → Select repo folder
+2. **Import Gradle**: Accept Gradle import prompt
+3. **Set JDK**: File → Project Structure → SDK → Java 21
+4. **Enable annotation processing**: Settings → Build → Compiler → Annotation Processors
+
+### Run configurations
+
+Create a run configuration:
+
+- **Main class**: `wego.curiosity.CuriosityApplication`
+- **Program arguments**: `server curiosity-providers/dropwizard.yml`
+- **VM options**: `-Dwego.environment=staging -Djetty.home=providers`
+- **Working directory**: Project root
+
+## Common Issues
+
+<Accordion title="Port already in use">
+```bash
+# Find process using port
+lsof -i :8080
+
+# Kill if needed
+kill -9 <PID>
+```
+</Accordion>
+
+<Accordion title="Redis connection refused">
+```bash
+# Check if Redis is running
+docker ps | grep redis
+
+# Restart if needed
+docker-compose restart live-redis static-redis
+```
+</Accordion>
+
+<Accordion title="Out of memory">
+Increase JVM heap in run configuration:
+```
+-Xmx4g -Xms2g
+```
+</Accordion>
+
+## Next Steps
+
+- Read [Architecture Overview](/architecture/overview)
+- Set up [Flight Integrations](/development/local-setup)
+- Review [Code Style](/development/code-style)
+- Join `#flights-dev-internal` Slack channel

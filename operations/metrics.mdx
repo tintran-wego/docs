@@ -1,0 +1,214 @@
+---
+title: Metrics & KPIs
+description: Key performance indicators for Flight Shopping
+---
+
+# Metrics & KPIs
+
+This document defines the key metrics we track and what constitutes healthy vs concerning values.
+
+## Business Metrics
+
+### Search Volume
+
+| Metric | Description | Target |
+|--------|-------------|--------|
+| **Daily Searches** | Total searches per day | Trend up YoY |
+| **Peak TPS** | Max transactions/second | Capacity for 2x |
+| **GFS Share** | % of searches from Google | ~60-70% |
+
+### Conversion
+
+| Metric | Description | Target |
+|--------|-------------|--------|
+| **Search Success Rate** | % returning results | >95% |
+| **Click-through Rate** | % clicking on fares | 10-20% |
+| **Booking Rate** | % completing booking | ~3-5% |
+
+### Revenue
+
+| Metric | Description | Target |
+|--------|-------------|--------|
+| **Revenue per Search** | Avg revenue | Stable/growing |
+| **CPC (Cost per Click)** | Provider pays us | Varies by market |
+| **Provider Margin** | Revenue efficiency | Optimize |
+
+---
+
+## Technical Metrics
+
+### Latency
+
+<Tabs>
+  <Tab title="Search Latency">
+    | Percentile | Target | Warning | Critical |
+    |------------|--------|---------|----------|
+    | p50 | <1s | 1-3s | >3s |
+    | p95 | <3s | 3-5s | >5s |
+    | p99 | <5s | 5-10s | >10s |
+  </Tab>
+  
+  <Tab title="GFS Latency">
+    | Percentile | Target | Warning | Critical |
+    |------------|--------|---------|----------|
+    | p50 | <200ms | 200-500ms | >500ms |
+    | p95 | <500ms | 500ms-1s | >1s |
+    | p99 | <1s | 1-2s | >2s |
+  </Tab>
+  
+  <Tab title="Provider Latency">
+    | Percentile | Target | Warning | Critical |
+    |------------|--------|---------|----------|
+    | p50 | <2s | 2-5s | >5s |
+    | p95 | <5s | 5-10s | >10s |
+    | p99 | <10s | 10-15s | >15s |
+  </Tab>
+</Tabs>
+
+### Error Rates
+
+| Metric | Target | Warning | Critical |
+|--------|--------|---------|----------|
+| **4xx Errors** | <2% | 2-5% | >5% |
+| **5xx Errors** | <0.1% | 0.1-1% | >1% |
+| **Timeout Rate** | <1% | 1-3% | >3% |
+| **Provider Errors** | <5% | 5-10% | >10% |
+
+### Throughput
+
+| Metric | Current | Capacity | Alert |
+|--------|---------|----------|-------|
+| **Search TPS** | ~100 | 500+ | >400 |
+| **GFS TPS** | ~50 | 200+ | >150 |
+| **Provider TPS** | Varies | Per limits | >80% |
+
+---
+
+## Cache Metrics
+
+| Metric | Target | Warning | Critical |
+|--------|--------|---------|----------|
+| **Live Cache Hit Rate** | >90% | 70-90% | <70% |
+| **Provider Cache Hit Rate** | >80% | 60-80% | <60% |
+| **Fare Store Hit Rate** | >95% | 80-95% | <80% |
+| **Cache Latency p50** | <5ms | 5-20ms | >20ms |
+| **Cache Evictions** | 0/min | 1-10/min | >10/min |
+
+---
+
+## Infrastructure Metrics
+
+### Redis
+
+| Metric | Target | Warning | Critical |
+|--------|--------|---------|----------|
+| **Memory Usage** | <70% | 70-85% | >85% |
+| **CPU Usage** | <60% | 60-80% | >80% |
+| **Connected Clients** | <1000 | 1000-5000 | >5000 |
+| **Ops/sec** | <100K | 100K-200K | >200K |
+
+### ScyllaDB
+
+| Metric | Target | Warning | Critical |
+|--------|--------|---------|----------|
+| **Read Latency p99** | <10ms | 10-50ms | >50ms |
+| **Write Latency p99** | <10ms | 10-50ms | >50ms |
+| **CPU Usage** | <70% | 70-85% | >85% |
+
+### Application (ECS)
+
+| Metric | Target | Warning | Critical |
+|--------|--------|---------|----------|
+| **CPU Usage** | <70% | 70-85% | >85% |
+| **Memory Usage** | <70% | 70-85% | >85% |
+| **Task Count** | Expected | ±10% | >±30% |
+
+---
+
+## GFS-Specific Metrics
+
+These metrics are critical for Google Flights SLA:
+
+| Metric | SLA | Current | Notes |
+|--------|-----|---------|-------|
+| **Availability** | 99.9% | Track | Max 8h/month downtime |
+| **Latency p95** | <500ms | Track | Cache-hit responses |
+| **Price Accuracy** | <5% variance | Track | Booking vs display |
+| **Coverage** | >90% routes | Track | Routes with fares |
+
+---
+
+## Monitoring & Alerting
+
+### Alert Thresholds
+
+Alerts are configured in Datadog with these priorities:
+
+| Priority | Response Time | Examples |
+|----------|---------------|----------|
+| **P1** | Immediate | Complete outage, GFS down |
+| **P2** | <30 min | High error rate, major latency |
+| **P3** | <4 hours | Single provider down |
+| **P4** | Next day | Minor degradation |
+
+### Key Alerts
+
+```yaml
+# Example alert definitions
+
+- name: "GFS Latency P95 High"
+  metric: gfs.latency.p95
+  threshold: 500ms
+  window: 5min
+  priority: P2
+
+- name: "Search Error Rate High"
+  metric: curiosity.error_rate
+  threshold: 5%
+  window: 5min
+  priority: P2
+
+- name: "Cache Hit Rate Low"
+  metric: cache.hit_rate
+  threshold: 60%
+  window: 15min
+  priority: P3
+```
+
+### Dashboard Queries
+
+Common Datadog queries:
+
+```
+# Search TPS
+sum:curiosity.search.count{*}.as_rate()
+
+# Error rate
+sum:curiosity.errors{*}.as_rate() / sum:curiosity.requests{*}.as_rate() * 100
+
+# P95 latency
+p95:curiosity.search.latency{*}
+
+# Provider success rate by provider
+(sum:provider.success{*} by {provider} / sum:provider.total{*} by {provider}) * 100
+```
+
+---
+
+## Capacity Planning
+
+### Current Capacity
+
+| Resource | Current Load | Max Capacity | Headroom |
+|----------|--------------|--------------|----------|
+| Search TPS | ~100 | ~500 | 5x |
+| GFS TPS | ~50 | ~200 | 4x |
+| Redis Memory | ~40% | 100% | 2.5x |
+| ECS Tasks | 10 | 50 | 5x |
+
+### Growth Projections
+
+Plan for:
+- **Seasonal peaks**: 2-3x normal traffic
+- **Partner growth**: 50% YoY increase
+- **New markets**: 20% capacity per market
